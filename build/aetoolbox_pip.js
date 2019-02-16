@@ -29,6 +29,50 @@ function instaGrid() {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 // Notes: apply process to any number of layers
+function rgbdtk() {
+    app.beginUndoGroup("Create RGBD-TK comps");
+
+    var theComp = app.project.activeItem;
+
+    if (theComp == null || !(theComp instanceof CompItem)) {  
+        alert(errorNoCompSelected);  
+    } else { 
+        var theLayers = theComp.selectedLayers;
+
+        if (theLayers.length==0) {
+            alert(errorNoLayerSelected);
+        } else {
+            var doFrameRate = false; //confirm("Reduce to 12fps?");
+            for (var i=0; i<theLayers.length; i++) {
+                var precompRgb = theComp.layers.precompose([theLayers[i].index], theLayers[i].name, true);
+                theComp.selectedLayers[i].position.setValue([256, 212]);
+
+                precompRgb.width = 512;
+                precompRgb.height = 424;
+                precompRgb.layers[1].position.setValue([256, 424]);
+                if (doFrameRate) precompRgb.frameRate = 12;
+
+                var precompDepth = precompRgb.duplicate();
+                var origName = precompRgb.name;
+                precompRgb.name += "_rgb";
+                precompDepth.name = origName + "_depth";
+                precompDepth.layers[1].position.setValue([256, 0]);
+
+                rgbToGrayDepth(precompDepth);
+
+                precompDepth = theComp.layers.add(precompDepth);
+                precompDepth.audioEnabled = false;
+                precompDepth.position.setValue([256, 636]);
+            }
+        }
+    }
+
+    app.endUndoGroup();   
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Notes: apply process to any number of layers
 function holoflix720p() {
     app.beginUndoGroup("Create Holoflix comps");
 
@@ -42,26 +86,26 @@ function holoflix720p() {
         if (theLayers.length==0) {
             alert(errorNoLayerSelected);
         } else {
-          var doFrameRate = confirm("Reduce to 12fps?");
-          for (var i=0; i<theLayers.length; i++) {
-              var precompRgb = theComp.layers.precompose([theLayers[i].index], theLayers[i].name, true);
+            var doFrameRate = false; //confirm("Reduce to 12fps?");
+            for (var i=0; i<theLayers.length; i++) {
+                var precompRgb = theComp.layers.precompose([theLayers[i].index], theLayers[i].name, true);
                 theComp.selectedLayers[i].position.setValue([960, 360]);
 
-              precompRgb.width = 640;
-              precompRgb.height = 480;
-              precompRgb.layers[1].position.setValue([0, 240]);
-              if (doFrameRate) precompRgb.frameRate = 12;
+                precompRgb.width = 640;
+                precompRgb.height = 480;
+                precompRgb.layers[1].position.setValue([0, 240]);
+                if (doFrameRate) precompRgb.frameRate = 12;
 
-              var precompDepth = precompRgb.duplicate();
-              var origName = precompRgb.name;
-              precompRgb.name += "_rgb";
-              precompDepth.name = origName + "_depth";
-              precompDepth.layers[1].position.setValue([640, 240]);
+                var precompDepth = precompRgb.duplicate();
+                var origName = precompRgb.name;
+                precompRgb.name += "_rgb";
+                precompDepth.name = origName + "_depth";
+                precompDepth.layers[1].position.setValue([640, 240]);
 
-              precompDepth = theComp.layers.add(precompDepth);
-              precompDepth.audioEnabled = false;
-              precompDepth.position.setValue([320, 360]);
-          }
+                precompDepth = theComp.layers.add(precompDepth);
+                precompDepth.audioEnabled = false;
+                precompDepth.position.setValue([320, 360]);
+            }
         }
     }
 
